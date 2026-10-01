@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoblastCo Indonesia - SPA Profile</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#0B2447', // Dark Navy Blue
+                            light: '#19376D',
+                            accent: '#576CBC',
+                            highlight: '#F59E0B' // Amber for slider/accents
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for Interactive Elements */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Before/After Slider Styles */
+        .comparison-slider {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            user-select: none;
+        }
+        
+        .comparison-slider img {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none;
+            object-fit: cover;
+            aspect-ratio: 16/9;
+        }
+
+        .slider-image-before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%; /* Initial width */
+            height: 100%;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .slider-image-before img {
+            width: 100vw; /* Trick to keep image aspect ratio while container shrinks */
+            max-width: 800px; /* Match max-width of container */
+            height: 100%;
+        }
+
+        .slider-handle {
+            position: absolute;
+            top: 0;
+            left: 50%; /* Initial position */
+            width: 4px;
+            height: 100%;
+            background-color: #F59E0B;
+            z-index: 20;
+            cursor: ew-resize;
+            transform: translateX(-50%);
+        }
+
+        .slider-handle-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background-color: #F59E0B;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+
+        /* Tab Transition Styles */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 bg-gray-50">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-brand-blue text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer tab-btn" data-target="home">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    <span class="font-bold text-2xl tracking-wider">SoblastCo</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-brand-light text-white" data-target="home">Home</button>
+                        <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-brand-light text-gray-300 hover:text-white" data-target="about">About Us</button>
+                        <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-brand-light text-gray-300 hover:text-white" data-target="products">Products</button>
+                        <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-brand-light text-brand-highlight flex items-center gap-1" data-target="innovation">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Innovation
+                        </button>
+                        <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-brand-accent hover:bg-blue-500 text-white" data-target="contact">Contact Us</button>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-brand-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-blue">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden bg-brand-blue border-t border-brand-light" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+                <button class="tab-btn w-full text-left px-3 py-2 rounded-md text-base font-medium bg-brand-light text-white" data-target="home">Home</button>
+                <button class="tab-btn w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-brand-light hover:text-white" data-target="about">About Us</button>
+                <button class="tab-btn w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-brand-light hover:text-white" data-target="products">Products</button>
+                <button class="tab-btn w-full text-left px-3 py-2 rounded-md text-base font-medium text-brand-highlight hover:bg-brand-light flex items-center gap-2" data-target="innovation">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Innovation
+                </button>
+                <button class="tab-btn w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-brand-light hover:text-white" data-target="contact">Contact Us</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col">
+        
+        <!-- ================= HOME TAB ================= -->
+        <section id="home" class="tab-content active flex-grow">
+            <div class="relative min-h-[80vh] flex items-center justify-center text-center px-4" style="background-image: linear-gradient(rgba(11, 36, 71, 0.85), rgba(11, 36, 71, 0.95)), url('https://placehold.co/1920x1080/1a1a1a/ffffff?text=Heavy+Industry+Facility'); background-size: cover; background-position: center;">
+                <div class="max-w-4xl mx-auto z-10 text-white">
+                    <span class="text-brand-highlight font-semibold tracking-widest uppercase mb-4 block">Engineered for Extremes</span>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                        Advanced Industrial Solutions &<br>
+                        <span class="text-brand-accent">Equipment Excellence</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                        Delivering heavy-duty steel profiling, premium wheel chocks, and innovative surface cleaning technology across Indonesia.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button class="tab-btn bg-brand-accent hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition duration-300" data-target="products">
+                            View Products
+                        </button>
+                        <button class="tab-btn bg-transparent border-2 border-brand-highlight text-brand-highlight hover:bg-brand-highlight hover:text-white font-semibold py-3 px-8 rounded-lg transition duration-300 flex items-center justify-center gap-2" data-target="innovation">
+                            See Innovation <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABOUT US TAB ================= -->
+        <section id="about" class="tab-content py-20 bg-white flex-grow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div class="relative rounded-xl overflow-hidden shadow-2xl">
+                        <img src="https://placehold.co/800x600/19376D/ffffff?text=SoblastCo+Facility+Since+2010" alt="SoblastCo Facility" class="w-full h-auto object-cover">
+                        <div class="absolute inset-0 bg-brand-blue opacity-10"></div>
+                    </div>
+                    <div>
+                        <span class="text-brand-accent font-semibold tracking-wider uppercase text-sm">Company Profile</span>
+                        <h2 class="text-3xl font-bold text-brand-blue mt-2 mb-4">A Decade of Industrial Excellence</h2>
+                        <div class="w-16 h-1 bg-brand-highlight mb-6 rounded"></div>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Established in <strong>2010 in Surabaya, Indonesia</strong>, SoblastCo Indonesia has forged a reputation as an uncompromising provider of industrial solutions. We understand that in heavy industries, there is no margin for error.
+                        </p>
+                        <p class="text-gray-600 mb-8 leading-relaxed">
+                            Rooted in the rigorous engineering standards of <strong>Houston, Texas, USA</strong>, we bring world-class technology to local operations. From custom steel profiling to heavy-duty wheel chocks and precision equipment cleaning, our mission is to ensure your site operates safely and efficiently.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="border-l-4 border-brand-accent pl-4">
+                                <h4 class="font-bold text-gray-900 text-2xl">10+</h4>
+                                <p class="text-sm text-gray-500 font-medium">Years Experience</p>
+                            </div>
+                            <div class="border-l-4 border-brand-highlight pl-4">
+                                <h4 class="font-bold text-gray-900 text-2xl">USA</h4>
+                                <p class="text-sm text-gray-500 font-medium">Engineering Standards</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PRODUCTS TAB ================= -->
+        <section id="products" class="tab-content py-20 bg-gray-50 flex-grow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="text-brand-accent font-semibold tracking-wider uppercase text-sm">Our Catalog</span>
+                    <h2 class="text-3xl font-bold text-brand-blue mt-2 mb-4">Heavy Duty Solutions</h2>
+                    <div class="w-24 h-1 bg-brand-highlight mx-auto mb-6 rounded"></div>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        Engineered for safety and durability in mining, construction, and heavy logistics environments.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Product 1: MC3009 -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col group hover:border-brand-accent transition-all duration-300">
+                        <div class="relative h-64 bg-gray-200 overflow-hidden">
+                            <img src="https://placehold.co/600x400/E5E7EB/0B2447?text=Wheel+Chock\nMC3009" alt="MC3009" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute top-4 right-4 bg-brand-blue text-white text-xs font-bold px-3 py-1 rounded-full">Heavy Duty</div>
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-bold text-brand-blue mb-2">Wheel Chocks MC3009</h3>
+                            <p class="text-gray-600 mb-6 flex-grow text-sm leading-relaxed">
+                                Standard heavy-duty chock for medium to large haul trucks. Constructed from highly durable urethane that resists oils, chemicals, and extreme weather.
+                            </p>
+                            <button class="w-full bg-gray-100 hover:bg-brand-blue text-brand-blue hover:text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+                                Request Quote
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product 2: MC3010 -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col group hover:border-brand-accent transition-all duration-300">
+                        <div class="relative h-64 bg-gray-200 overflow-hidden">
+                            <img src="https://placehold.co/600x400/E5E7EB/0B2447?text=Wheel+Chock\nMC3010" alt="MC3010" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute top-4 right-4 bg-brand-blue text-white text-xs font-bold px-3 py-1 rounded-full">Extra Heavy Duty</div>
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-bold text-brand-blue mb-2">Wheel Chocks MC3010</h3>
+                            <p class="text-gray-600 mb-6 flex-grow text-sm leading-relaxed">
+                                Engineered with a wider base and steeper angle. Ideal for massive earth-moving equipment and loaders. Includes mounting holes for ropes or chains.
+                            </p>
+                            <button class="w-full bg-gray-100 hover:bg-brand-blue text-brand-blue hover:text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+                                Request Quote
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product 3: MC3011 -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col group hover:border-brand-accent transition-all duration-300">
+                        <div class="relative h-64 bg-gray-200 overflow-hidden">
+                            <img src="https://placehold.co/600x400/E5E7EB/0B2447?text=Wheel+Chock\nMC3011" alt="MC3011" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute top-4 right-4 bg-brand-highlight text-brand-blue text-xs font-bold px-3 py-1 rounded-full">Extreme Capacity</div>
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-bold text-brand-blue mb-2">Wheel Chocks MC3011</h3>
+                            <p class="text-gray-600 mb-6 flex-grow text-sm leading-relaxed">
+                                Our largest capacity chock, designed specifically for the most extreme mining haul trucks (e.g., 400-ton capacity). Maximum grip and absolute safety.
+                            </p>
+                            <button class="w-full bg-gray-100 hover:bg-brand-blue text-brand-blue hover:text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+                                Request Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= INNOVATION TAB ================= -->
+        <section id="innovation" class="tab-content py-20 bg-white flex-grow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center mb-16">
+                    <span class="text-brand-accent font-semibold tracking-wider uppercase text-sm">Technology & Services</span>
+                    <h2 class="text-3xl font-bold text-brand-blue mt-2 mb-4">Innovation in Cleaning</h2>
+                    <div class="w-24 h-1 bg-brand-highlight mx-auto mb-6 rounded"></div>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        Experience the difference our advanced abrasive blasting and industrial cleaning technology makes on your equipment.
+                    </p>
+                </div>
+
+                <!-- Feature 1: Before & After Slider -->
+                <div class="mb-20">
+                    <h3 class="text-2xl font-bold text-center text-gray-800 mb-8">Surface Restoration Result</h3>
+                    
+                    <div class="comparison-slider group" id="slider-container">
+                        <!-- Background Image (After - Clean) -->
+                        <img src="https://placehold.co/800x450/0f172a/ffffff?text=After+(Clean+Metal)" alt="After Cleaning">
+                        
+                        <!-- Overlay Image (Before - Rusty) -->
+                        <div class="slider-image-before" id="slider-before">
+                            <img src="https://placehold.co/800x450/7c2d12/ffffff?text=Before+(Rusty/Corroded)" alt="Before Cleaning">
+                        </div>
+                        
+                        <!-- Slider Handle -->
+                        <div class="slider-handle" id="slider-handle">
+                            <div class="slider-handle-button">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-center text-sm text-gray-500 mt-4">Drag the slider to compare</p>
+                </div>
+
+                <!-- Feature 2: Quick Estimator Calculator -->
+                <div class="bg-brand-blue rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto flex flex-col md:flex-row">
+                    <div class="p-8 md:w-1/2 text-white flex flex-col justify-center">
+                        <h3 class="text-2xl font-bold mb-4">Quick Project Estimator</h3>
+                        <p class="text-gray-300 mb-6 text-sm">
+                            Get a rough estimate for your industrial cleaning or profiling project instantly. Enter your parameters to see indicative pricing.
+                        </p>
+                        <div class="mt-auto hidden md:block">
+                            <svg class="w-24 h-24 text-brand-light opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-8 md:w-1/2">
+                        <form id="estimator-form" class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Type of Service</label>
+                                <select id="est-service" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none">
+                                    <option value="150000">Abrasive Sandblasting (Rp 150.000 / m²)</option>
+                                    <option value="120000">Hydro Cleaning (Rp 120.000 / m²)</option>
+                                    <option value="250000">Coating & Painting (Rp 250.000 / m²)</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Surface Area Size (m²)</label>
+                                <input type="number" id="est-area" min="1" placeholder="e.g. 50" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none">
+                            </div>
+
+                            <button type="button" onclick="calculateEstimate()" class="w-full bg-brand-highlight hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md">
+                                Calculate Estimate
+                            </button>
+                        </form>
+
+                        <div id="est-result" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                            <p class="text-sm text-gray-500 mb-1">Estimated Cost:</p>
+                            <h4 class="text-3xl font-bold text-brand-blue" id="est-price">Rp 0</h4>
+                            <p class="text-xs text-gray-400 mt-2">*This is a rough estimate. Contact us for an official quote.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= CONTACT US TAB ================= -->
+        <section id="contact" class="tab-content py-20 bg-gray-50 flex-grow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="text-brand-accent font-semibold tracking-wider uppercase text-sm">Get in Touch</span>
+                    <h2 class="text-3xl font-bold text-brand-blue mt-2 mb-4">Contact SoblastCo</h2>
+                    <div class="w-24 h-1 bg-brand-highlight mx-auto rounded"></div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row">
+                    <!-- Contact Info -->
+                    <div class="bg-brand-blue p-10 lg:w-1/3 text-white">
+                        <h3 class="text-2xl font-bold mb-8">Headquarters</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-brand-light p-3 rounded-full flex-shrink-0">
+                                    <svg class="w-6 h-6 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-1">Surabaya Office</h4>
+                                    <p class="text-gray-300 leading-relaxed text-sm">
+                                        Jalan I Gusti Ngurah Rai<br>
+                                        Surabaya, East Java<br>
+                                        Indonesia
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <div class="bg-brand-light p-3 rounded-full flex-shrink-0">
+                                    <svg class="w-6 h-6 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-1">Email Us</h4>
+                                    <a href="mailto:info@soblastco-indonesia.com" class="text-gray-300 hover:text-white transition text-sm">info@soblastco-indonesia.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder for Map / Form -->
+                    <div class="p-10 lg:w-2/3 bg-gray-200 flex items-center justify-center relative min-h-[400px]">
+                        <img src="https://placehold.co/800x600/e2e8f0/64748b?text=Google+Maps+Integration+Placeholder" alt="Map Placeholder" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center p-8">
+                             <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+                                <h4 class="font-bold text-gray-800 mb-2">Send us a Message</h4>
+                                <p class="text-sm text-gray-500 mb-4">For official inquiries and custom quotes, please contact us directly via email or visit our facility.</p>
+                                <a href="mailto:info@soblastco-indonesia.com" class="inline-block bg-brand-blue hover:bg-brand-light text-white font-medium py-2 px-6 rounded transition w-full">Email Now</a>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-12 pb-6 border-t-4 border-brand-accent mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center gap-2 mb-4 md:mb-0">
+                <svg class="w-6 h-6 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                <span class="font-bold text-xl tracking-wider">SoblastCo Indonesia</span>
+            </div>
+            
+            <div class="text-sm text-gray-500 text-center md:text-right">
+                <p>&copy; 2010 - <span id="currentYear"></span>. All rights reserved.</p>
+                <p class="mt-1 text-xs">Surabaya - Indonesia | Houston - USA</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Set Current Year
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // 1. SPA Tab Navigation Logic
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        function activateTab(targetId) {
+            // Hide all tabs
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Reset all buttons style (Desktop)
+            document.querySelectorAll('nav .hidden.md\\:block .tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-brand-light text-gray-300 hover:text-white';
+            });
+            // Fix specific button styles like Innovation and Contact
+            const desktopNav = document.querySelector('.hidden.md\\:block');
+            const innovBtn = desktopNav.querySelector('[data-target="innovation"]');
+            if(innovBtn) innovBtn.className = 'tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-brand-light text-brand-highlight flex items-center gap-1';
+            
+            const contactBtn = desktopNav.querySelector('[data-target="contact"]');
+            if(contactBtn) contactBtn.className = 'tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-brand-accent hover:bg-blue-500 text-white';
+
+            // Set active tab content
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Set active button state (Desktop only styling)
+            const activeBtn = desktopNav.querySelector(`[data-target="${targetId}"]`);
+            if (activeBtn && targetId !== 'contact' && targetId !== 'innovation') {
+                activeBtn.className = 'tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-brand-light text-white';
+            }
+
+            // Close mobile menu if open
+            mobileMenu.classList.add('hidden');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Attach click events to all tab buttons
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // If the click is on an SVG inside the button, find the closest button
+                const target = e.currentTarget; 
+                const targetId = target.getAttribute('data-target');
+                if (targetId) {
+                    activateTab(targetId);
+                }
+            });
+        });
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 2. Interactive Before & After Slider Logic
+        const sliderContainer = document.getElementById('slider-container');
+        const sliderBefore = document.getElementById('slider-before');
+        const sliderHandle = document.getElementById('slider-handle');
+        let isDragging = false;
+
+        function slideMove(e) {
+            if (!isDragging) return;
+            
+            // Get x coordinate relative to container
+            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            let rect = sliderContainer.getBoundingClientRect();
+            let x = clientX - rect.left;
+            
+            // Bound calculation
+            let width = rect.width;
+            if (x < 0) x = 0;
+            if (x > width) x = width;
+            
+            let percentage = (x / width) * 100;
+            
+            // Apply widths
+            sliderBefore.style.width = `${percentage}%`;
+            sliderHandle.style.left = `${percentage}%`;
+        }
+
+        sliderContainer.addEventListener('mousedown', () => isDragging = true);
+        sliderContainer.addEventListener('touchstart', () => isDragging = true, {passive: true});
+        
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('touchend', () => isDragging = false);
+        
+        sliderContainer.addEventListener('mousemove', slideMove);
+        sliderContainer.addEventListener('touchmove', slideMove, {passive: true});
+
+        // 3. Quick Project Estimator Logic
+        function calculateEstimate() {
+            const serviceRate = parseFloat(document.getElementById('est-service').value);
+            const areaStr = document.getElementById('est-area').value;
+            const resultBox = document.getElementById('est-result');
+            const priceText = document.getElementById('est-price');
+
+            if (!areaStr || areaStr <= 0) {
+                // Minimal non-alert feedback
+                priceText.textContent = "Please enter valid area";
+                priceText.classList.replace('text-brand-blue', 'text-red-500');
+                resultBox.classList.remove('hidden');
+                return;
+            }
+
+            const area = parseFloat(areaStr);
+            const total = serviceRate * area;
+
+            // Format to IDR Rupiah
+            const formattedTotal = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(total);
+
+            priceText.classList.replace('text-red-500', 'text-brand-blue');
+            priceText.textContent = formattedTotal;
+            resultBox.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
